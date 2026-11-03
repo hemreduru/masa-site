@@ -20,14 +20,23 @@
     });
   }
 
-  // hero video: autoplay unless the visitor asked for less motion; always pausable
-  var v = document.getElementById('heroVid'), vb = document.getElementById('vidBtn');
-  if (v && vb) {
+  // videos: play while visible, pause off-screen; always pausable; no autoplay for reduced motion
+  var vids = document.querySelectorAll('.vid');
+  var vio = ('IntersectionObserver' in window) ? new IntersectionObserver(function (es) {
+    es.forEach(function (en) {
+      var v = en.target.querySelector('video');
+      if (!v || v.dataset.manual === '1') return;
+      if (en.isIntersecting) { var p = v.play(); if (p && p.catch) p.catch(function () {}); } else { v.pause(); }
+    });
+  }, { threshold: 0.35 }) : null;
+  vids.forEach(function (box) {
+    var v = box.querySelector('video'), vb = box.querySelector('.vp');
+    if (!v || !vb) return;
     var setBtn = function () { var p = v.paused; vb.textContent = vb.getAttribute(p ? 'data-play' : 'data-pause'); vb.setAttribute('aria-pressed', p ? 'true' : 'false'); };
-    if (reduce) { v.removeAttribute('autoplay'); v.pause(); } else { var pr = v.play(); if (pr && pr.catch) pr.catch(function () {}); }
     v.addEventListener('play', setBtn); v.addEventListener('pause', setBtn); setBtn();
-    vb.addEventListener('click', function () { if (v.paused) v.play(); else v.pause(); });
-  }
+    vb.addEventListener('click', function () { v.dataset.manual = '1'; if (v.paused) v.play(); else v.pause(); });
+    if (reduce) { v.dataset.manual = '1'; v.pause(); setBtn(); } else if (vio) { vio.observe(box); }
+  });
 
   // the real prompt
   var card = document.getElementById('askCard');

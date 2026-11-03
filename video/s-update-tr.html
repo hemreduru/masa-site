@@ -1,0 +1,53 @@
+<!doctype html><html lang="tr"><head><meta charset="utf-8"><link rel="stylesheet" href="/css/mock.css"><style>
+@font-face{font-family:"Switzer";src:url("/fonts/switzer-400.woff2") format("woff2");font-weight:400}
+@font-face{font-family:"Switzer";src:url("/fonts/switzer-500.woff2") format("woff2");font-weight:500}
+html,body{margin:0;height:100%;background:#ececea;font-family:"Switzer",system-ui,sans-serif;overflow:hidden}
+.mock{aspect-ratio:auto;height:100vh;border-radius:0;position:relative;background:#ececea}
+#stage{position:absolute;left:0;top:0;width:100%;height:100%;transform-origin:0 0;transform:translate(0,0) scale(1);transition:transform 1.35s cubic-bezier(.5,0,.15,1),opacity .5s;font-size:19px}
+.mock .win{font-size:19px}
+body.mob #stage,body.mob .mock .win{font-size:15px}
+body.mob .sb{display:none}
+.v-in{opacity:0;transform:translateY(14px);transition:opacity .5s cubic-bezier(.2,.7,.2,1),transform .5s cubic-bezier(.2,.7,.2,1)}
+.v-in.on{opacity:1;transform:none}
+.caret{display:inline-block;width:2px;height:1.1em;background:#2a2a28;vertical-align:-.2em;margin-left:1px;animation:b 1s steps(2) infinite}
+@keyframes b{50%{opacity:0}}
+.cursor{position:absolute;left:0;top:0;width:24px;height:32px;z-index:9;pointer-events:none;transition:transform .85s cubic-bezier(.4,.1,.2,1);transform:translate(40%,90%)}
+.cursor::before{content:"";position:absolute;inset:0;background:#111;clip-path:polygon(0 0,0 85%,24% 66%,40% 100%,56% 92%,40% 60%,72% 60%)}
+.press{transform:scale(.93)!important;transition:transform .12s!important}
+.tag{position:absolute;z-index:8;background:#fed878;color:#0d0d0d;font:500 1em/1 "Switzer",sans-serif;padding:.7em 1em;border-radius:.8em;box-shadow:0 0 0 2px #0d0d0d;white-space:nowrap;opacity:0;transform:scale(.85) translateY(8px);transform-origin:0 100%;transition:opacity .35s,transform .45s cubic-bezier(.2,.9,.3,1.2)}
+.tag.on{opacity:1;transform:none}
+.mock .fd{min-height:2.4em}
+.mock .ml li{transition:background .3s}
+.mock .ml li.hl{background:#fff}
+.mock .pb i{transition:width 3.2s linear}
+.mock .bt.s{transition:background .2s}
+</style></head><body><div class="mock " data-ui><div id="stage"><div class="win"><div class="tb"><i class="lg"></i><b>Masa</b><span>Güncellemeler</span></div><div class="bd"><aside class="sb st"><ul class="ch"><li class="">Genel</li><li class="">Sağlayıcılar ve modeller</li><li class="">MCP sunucuları</li><li class="on">Güncellemeler</li></ul></aside><div class="mn pad"><h4>Güncellemeler</h4><p class="fn">Sürüm 0.1.9</p>
+<div class="uc"><b>Yeni sürüm hazır</b><div class="pb"><i></i></div><small>İndirildi</small><div class="bt acc">Yeniden başlat ve kur</div></div>
+<div class="tg"><i class="sw"></i><span>Güncellemeleri arka planda indir</span></div><div class="bt">Şimdi denetle</div></div></div></div><i class="cursor" id="cur"></i></div></div><script>const T={"models": ["OpenAI uyumlu herhangi bir adres", "Modeller kendiliğinden gelir", "Varsayılanı sen seçersin"], "project": ["Her sohbet bu talimatla başlar", "Dosyalar projeye bağlı", "Sohbetler bir arada"], "artifact": ["Üç sürüm, tek tıkla gez", "Panoya kopyalandı", "Dosyaya kaydedildi"], "mcp": ["Mevcut MCP ayarını içe aktar", "Sunucular modele araç olur"], "update": ["Arka planda iner", "Tek düğmeyle kurulur"], "dl": "İndiriliyor", "copied": "Kopyalandı", "saved": "Kaydedildi", "restarting": "Yeniden başlıyor…", "count": "araç", "conn": "bağlı"};const DEF="Varsayılan";const COPIED="Kopyalandı",SAVED="Kaydedildi",RESTARTING="Yeniden başlıyor…",DL="İndiriliyor",DLDONE="İndirildi",CONN="bağlı",TOOLS="araç",CFG="{\n  \"mcpServers\": {\n    \"files\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"files-server\"]\n    }\n  }\n}";
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)],sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const stage=$('#stage');
+const K=()=>stage.getBoundingClientRect().width/stage.offsetWidth;
+function pos(el,fx=.5,fy=.5){const r=el.getBoundingClientRect(),s=stage.getBoundingClientRect(),k=K();return{x:(r.left-s.left+r.width*fx)/k,y:(r.top-s.top+r.height*fy)/k}}
+function cam(el,z=1.55,fx=.5,fy=.5){if(document.body.classList.contains('mob'))z=1;const W=stage.offsetWidth,H=stage.offsetHeight;if(!el||z===1){stage.style.transform='translate(0px,0px) scale(1)';return}
+ const p=pos(el,fx,fy);let tx=W/2-p.x*z,ty=H/2-p.y*z;tx=Math.min(0,Math.max(W-W*z,tx));ty=Math.min(0,Math.max(H-H*z,ty));stage.style.transform=`translate(${tx}px,${ty}px) scale(${z})`}
+function cur(el,fx=.5,fy=.5){const p=pos(el,fx,fy);$('#cur').style.transform=`translate(${p.x}px,${p.y}px)`}
+async function press(el){el.classList.add('press');await sleep(170);el.classList.remove('press')}
+function tag(el,txt,fx=0,fy=0,dx=0,dy=-58){const p=pos(el,fx,fy),t=document.createElement('div');t.className='tag';t.textContent=txt;t.style.left=(p.x+dx)+'px';t.style.top=(p.y+dy)+'px';stage.appendChild(t);{const W=stage.offsetWidth,H=stage.offsetHeight,w=t.offsetWidth,h=t.offsetHeight;const m=/translate\((-?[\d.]+)px,\s*(-?[\d.]+)px\)\s*scale\(([\d.]+)\)/.exec(stage.style.transform)||[0,0,0,1];const z=+m[3],vx0=-m[1]/z,vy0=-m[2]/z,vx1=vx0+W/z,vy1=vy0+H/z;let l=p.x+dx,tp=p.y+dy;if(l+w>vx1-14)l=vx1-14-w;if(l<vx0+14)l=vx0+14;if(tp<vy0+14)tp=vy0+14;if(tp+h>vy1-14)tp=vy1-14-h;t.style.left=l+'px';t.style.top=tp+'px'}requestAnimationFrame(()=>requestAnimationFrame(()=>t.classList.add('on')));return t}
+function untag(t){t.classList.remove('on');setTimeout(()=>t.remove(),500)}
+async function type(el,txt,cps=26){for(let i=1;i<=txt.length;i++){el.innerHTML=txt.slice(0,i).replace(/</g,'&lt;')+'<span class="caret"></span>';await sleep(1000/cps+Math.random()*14)}el.textContent=txt}
+const show=(el,d=0)=>setTimeout(()=>el.classList.add('on'),d);
+async function boot(){if(location.search.includes('m=1'))document.body.classList.add('mob');await document.fonts.ready;stage.style.opacity=0;await sleep(250);stage.style.opacity=1;await sleep(500)}
+async function finish(){cam(null);cur($('.win'),.5,.9);await sleep(1500);stage.style.opacity=0;await sleep(600);window.__done=true}
+
+const t=T.update, uc=$('.uc'), pb=$('.pb i'), small=$('.uc small'), restart=$('.bt.acc'), sw=$('.sw'), b=uc.querySelector('b');
+pb.style.width='0%';small.textContent='';restart.style.opacity=0;restart.style.transition='opacity .5s';sw.style.opacity=.35;sw.style.transition='opacity .5s';
+(async()=>{await boot();
+ cam(uc,1.5,.5,.5);cur(uc,.7,.3);await sleep(1000);
+ const t1=tag(uc,t[0],0,0,0,-64);small.textContent=DL+' 0%';pb.style.width='100%';
+ const t0=Date.now();const iv=setInterval(()=>{const p=Math.min(100,Math.round((Date.now()-t0)/3200*100));small.textContent=p<100?DL+' '+p+'%':DLDONE},120);
+ await sleep(3500);clearInterval(iv);small.textContent=DLDONE;untag(t1);
+ restart.style.opacity=1;await sleep(900);const t2=tag(restart,t[1],0,0,0,-64);cur(restart);await sleep(1300);
+ await press(restart);restart.textContent=RESTARTING;await sleep(1700);untag(t2);
+ cam(sw,1.7,.5,.5);sw.style.opacity=1;cur(sw);await sleep(1600);
+ await finish()})();
+</script></body></html>

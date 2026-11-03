@@ -8,7 +8,7 @@ OUT = os.path.join(ROOT, "public")
 BASE = "https://masa.hursit.me"
 INDEXABLE = os.environ.get("INDEXABLE", "0") == "1"
 TODAY = datetime.date.today().isoformat()
-VERSION = os.environ.get("MASA_VERSION", "0.1.10")
+VERSION = os.environ.get("MASA_VERSION", "0.1.11")
 EMAIL = "contact@hursit.me"
 
 e = html.escape
@@ -232,7 +232,7 @@ def head(c, title, desc, path, alt_path, extra_ld=None, og=True):
 <link rel="manifest" href="/site.webmanifest">
 <link rel="preload" href="/fonts/switzer-600.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/css/site.css?v={VERSION}">
-<link rel="stylesheet" href="/css/mock.css?v={VERSION}">
+
 <script type="application/ld+json">{ld}</script>
 </head>
 """
@@ -249,6 +249,22 @@ def mockup(lang, key, alt):
 H1 = {"tr": "Masa her modelle konuşur.", "en": "Masa talks to any model."}
 # chapter colour and layout per feature, in page order (never two alike side by side)
 CHAPTERS = [("models", "c2", "fa"), ("hero", "c3", "fb"), ("artifact", "c4", "fa"), ("mcp", "c1", "fb"), ("update", "c2", "fa")]
+
+
+SCENE = {"models": "models", "hero": "project", "artifact": "artifact", "mcp": "mcp", "update": "update"}
+
+
+def video(lang, key, alt):
+    s = SCENE[key]
+    pause = "Duraklat" if lang == "tr" else "Pause"
+    play = "Oynat" if lang == "tr" else "Play"
+    return f"""<div class="vid" data-lazy>
+<video width="1280" height="800" muted loop playsinline preload="none" poster="/media/{s}-{lang}-d.webp" aria-label="{e(alt)}">
+<source src="/media/{s}-{lang}-m.mp4" type="video/mp4" media="(max-width: 900px)">
+<source src="/media/{s}-{lang}-d.mp4" type="video/mp4">
+</video>
+<button type="button" class="vp" aria-pressed="false" data-play="{play}" data-pause="{pause}">{pause}</button>
+</div>"""
 
 
 def nav(c, links=None):
@@ -296,7 +312,7 @@ def home(c):
         chapters += f"""<section class="ch {col} feat {lay}"{anchor} aria-labelledby="f-{k}">
 <h2 class="hd" id="f-{k}">{e(h)}</h2>
 <div class="fp"><p>{e(p)}</p></div>
-<div class="fm">{mockup(lang, k, alt)}</div>
+<div class="fm">{video(lang, k, alt)}</div>
 </section>
 """
 

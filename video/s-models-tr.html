@@ -1,0 +1,58 @@
+<!doctype html><html lang="tr"><head><meta charset="utf-8"><link rel="stylesheet" href="/css/mock.css"><style>
+@font-face{font-family:"Switzer";src:url("/fonts/switzer-400.woff2") format("woff2");font-weight:400}
+@font-face{font-family:"Switzer";src:url("/fonts/switzer-500.woff2") format("woff2");font-weight:500}
+html,body{margin:0;height:100%;background:#ececea;font-family:"Switzer",system-ui,sans-serif;overflow:hidden}
+.mock{aspect-ratio:auto;height:100vh;border-radius:0;position:relative;background:#ececea}
+#stage{position:absolute;left:0;top:0;width:100%;height:100%;transform-origin:0 0;transform:translate(0,0) scale(1);transition:transform 1.35s cubic-bezier(.5,0,.15,1),opacity .5s;font-size:19px}
+.mock .win{font-size:19px}
+body.mob #stage,body.mob .mock .win{font-size:15px}
+body.mob .sb{display:none}
+.v-in{opacity:0;transform:translateY(14px);transition:opacity .5s cubic-bezier(.2,.7,.2,1),transform .5s cubic-bezier(.2,.7,.2,1)}
+.v-in.on{opacity:1;transform:none}
+.caret{display:inline-block;width:2px;height:1.1em;background:#2a2a28;vertical-align:-.2em;margin-left:1px;animation:b 1s steps(2) infinite}
+@keyframes b{50%{opacity:0}}
+.cursor{position:absolute;left:0;top:0;width:24px;height:32px;z-index:9;pointer-events:none;transition:transform .85s cubic-bezier(.4,.1,.2,1);transform:translate(40%,90%)}
+.cursor::before{content:"";position:absolute;inset:0;background:#111;clip-path:polygon(0 0,0 85%,24% 66%,40% 100%,56% 92%,40% 60%,72% 60%)}
+.press{transform:scale(.93)!important;transition:transform .12s!important}
+.tag{position:absolute;z-index:8;background:#fed878;color:#0d0d0d;font:500 1em/1 "Switzer",sans-serif;padding:.7em 1em;border-radius:.8em;box-shadow:0 0 0 2px #0d0d0d;white-space:nowrap;opacity:0;transform:scale(.85) translateY(8px);transform-origin:0 100%;transition:opacity .35s,transform .45s cubic-bezier(.2,.9,.3,1.2)}
+.tag.on{opacity:1;transform:none}
+.mock .fd{min-height:2.4em}
+.mock .ml li{transition:background .3s}
+.mock .ml li.hl{background:#fff}
+.mock .pb i{transition:width 3.2s linear}
+.mock .bt.s{transition:background .2s}
+</style></head><body><div class="mock " data-ui><div id="stage"><div class="win"><div class="tb"><i class="lg"></i><b>Masa</b><span>Sağlayıcılar ve modeller</span></div><div class="bd"><aside class="sb st"><ul class="ch"><li class="">Genel</li><li class="on">Sağlayıcılar ve modeller</li><li class="">MCP sunucuları</li><li class="">Güncellemeler</li></ul></aside><div class="mn pad"><h4>Sağlayıcılar ve modeller</h4>
+<label>API adresi</label><div class="fd">https://api.example.com/v1</div>
+<label>Anahtar</label><div class="fd">••••••••••••••3f9a</div>
+<div class="bt">Modelleri getir</div>
+<p class="fn">3 model bulundu</p><ul class="ml"><li class="on"><i class="rd"></i><span>coder-large</span><em>Varsayılan</em></li><li class=""><i class="rd"></i><span>chat-fast</span></li><li class=""><i class="rd"></i><span>reason-pro</span></li></ul></div></div></div><i class="cursor" id="cur"></i></div></div><script>const T={"models": ["OpenAI uyumlu herhangi bir adres", "Modeller kendiliğinden gelir", "Varsayılanı sen seçersin"], "project": ["Her sohbet bu talimatla başlar", "Dosyalar projeye bağlı", "Sohbetler bir arada"], "artifact": ["Üç sürüm, tek tıkla gez", "Panoya kopyalandı", "Dosyaya kaydedildi"], "mcp": ["Mevcut MCP ayarını içe aktar", "Sunucular modele araç olur"], "update": ["Arka planda iner", "Tek düğmeyle kurulur"], "dl": "İndiriliyor", "copied": "Kopyalandı", "saved": "Kaydedildi", "restarting": "Yeniden başlıyor…", "count": "araç", "conn": "bağlı"};const DEF="Varsayılan";const COPIED="Kopyalandı",SAVED="Kaydedildi",RESTARTING="Yeniden başlıyor…",DL="İndiriliyor",DLDONE="İndirildi",CONN="bağlı",TOOLS="araç",CFG="{\n  \"mcpServers\": {\n    \"files\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"files-server\"]\n    }\n  }\n}";
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)],sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const stage=$('#stage');
+const K=()=>stage.getBoundingClientRect().width/stage.offsetWidth;
+function pos(el,fx=.5,fy=.5){const r=el.getBoundingClientRect(),s=stage.getBoundingClientRect(),k=K();return{x:(r.left-s.left+r.width*fx)/k,y:(r.top-s.top+r.height*fy)/k}}
+function cam(el,z=1.55,fx=.5,fy=.5){if(document.body.classList.contains('mob'))z=1;const W=stage.offsetWidth,H=stage.offsetHeight;if(!el||z===1){stage.style.transform='translate(0px,0px) scale(1)';return}
+ const p=pos(el,fx,fy);let tx=W/2-p.x*z,ty=H/2-p.y*z;tx=Math.min(0,Math.max(W-W*z,tx));ty=Math.min(0,Math.max(H-H*z,ty));stage.style.transform=`translate(${tx}px,${ty}px) scale(${z})`}
+function cur(el,fx=.5,fy=.5){const p=pos(el,fx,fy);$('#cur').style.transform=`translate(${p.x}px,${p.y}px)`}
+async function press(el){el.classList.add('press');await sleep(170);el.classList.remove('press')}
+function tag(el,txt,fx=0,fy=0,dx=0,dy=-58){const p=pos(el,fx,fy),t=document.createElement('div');t.className='tag';t.textContent=txt;t.style.left=(p.x+dx)+'px';t.style.top=(p.y+dy)+'px';stage.appendChild(t);{const W=stage.offsetWidth,H=stage.offsetHeight,w=t.offsetWidth,h=t.offsetHeight;const m=/translate\((-?[\d.]+)px,\s*(-?[\d.]+)px\)\s*scale\(([\d.]+)\)/.exec(stage.style.transform)||[0,0,0,1];const z=+m[3],vx0=-m[1]/z,vy0=-m[2]/z,vx1=vx0+W/z,vy1=vy0+H/z;let l=p.x+dx,tp=p.y+dy;if(l+w>vx1-14)l=vx1-14-w;if(l<vx0+14)l=vx0+14;if(tp<vy0+14)tp=vy0+14;if(tp+h>vy1-14)tp=vy1-14-h;t.style.left=l+'px';t.style.top=tp+'px'}requestAnimationFrame(()=>requestAnimationFrame(()=>t.classList.add('on')));return t}
+function untag(t){t.classList.remove('on');setTimeout(()=>t.remove(),500)}
+async function type(el,txt,cps=26){for(let i=1;i<=txt.length;i++){el.innerHTML=txt.slice(0,i).replace(/</g,'&lt;')+'<span class="caret"></span>';await sleep(1000/cps+Math.random()*14)}el.textContent=txt}
+const show=(el,d=0)=>setTimeout(()=>el.classList.add('on'),d);
+async function boot(){if(location.search.includes('m=1'))document.body.classList.add('mob');await document.fonts.ready;stage.style.opacity=0;await sleep(250);stage.style.opacity=1;await sleep(500)}
+async function finish(){cam(null);cur($('.win'),.5,.9);await sleep(1500);stage.style.opacity=0;await sleep(600);window.__done=true}
+
+const t=T.models, fds=$$('.fd'), addr=fds[0], key=fds[1], btn=$('.mn .bt'), fn=$('.fn'), rows=$$('.ml li');
+const A=addr.textContent, KY=key.textContent; addr.textContent=''; key.textContent='';
+fn.style.opacity=0; fn.style.transition='opacity .5s'; rows.forEach(r=>r.classList.add('v-in'));
+rows.forEach(r=>r.classList.remove('on')); const em=document.createElement('em'); em.textContent=DEF; 
+(async()=>{await boot();
+ cam(addr,1.5,.5,.5);cur(addr,.1,.5);await sleep(1100);
+ const t1=tag(addr,t[0],0,0,0,-64); await type(addr,A,24); await sleep(900); untag(t1);
+ cur(key,.15,.5);await sleep(900);await type(key,KY,22);await sleep(500);
+ cam(btn,1.5,.5,.2);cur(btn);await sleep(1300);await press(btn);fn.style.opacity=1;
+ await sleep(500);cam($('.ml'),1.5,.5,.4);rows.forEach((r,i)=>show(r,i*260));await sleep(1000);
+ rows[0].classList.add('on');rows[0].append(em);const t2=tag($('.ml'),t[1],0,0,0,-66);await sleep(1700);untag(t2);
+ cur(rows[1],.4,.5);await sleep(1000);await press(rows[1]);rows[0].classList.remove('on');em.remove();rows[1].classList.add('on');rows[1].append(em);
+ const t3=tag(rows[1],t[2],.45,0,0,-64);await sleep(1900);untag(t3);
+ await finish()})();
+</script></body></html>
