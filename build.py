@@ -326,7 +326,12 @@ def home(c):
 <section class="ch c1 hero">
 <h1>{e(H1[lang])}</h1>
 <div class="hero-text"><p>{e(c['tagline'])}</p><a class="btn" href="#{dlid}">{e(c['cta'])}</a></div>
-<div class="hero-shot">{mock.chat(lang, c['hero_alt'])}</div>
+<div class="hero-shot"><div class="vid">
+<video id="heroVid" width="1280" height="800" muted loop playsinline preload="metadata" poster="/media/masa-{lang}-poster.webp" aria-label="{e(c['hero_alt'])}">
+<source src="/media/masa-{lang}.mp4" type="video/mp4">
+</video>
+<button type="button" class="vp" id="vidBtn" aria-pressed="false" data-play="{'Oynat' if lang == 'tr' else 'Play'}" data-pause="{'Duraklat' if lang == 'tr' else 'Pause'}">{'Duraklat' if lang == 'tr' else 'Pause'}</button>
+</div></div>
 </section>
 
 {chapters}
@@ -413,7 +418,7 @@ def main():
     if os.path.isdir(OUT):
         shutil.rmtree(OUT)
     os.makedirs(OUT)
-    for d in ("css", "js", "fonts", "img"):
+    for d in ("css", "js", "fonts", "img", "media"):
         src = os.path.join(ROOT, d)
         if os.path.isdir(src):
             shutil.copytree(src, os.path.join(OUT, d))

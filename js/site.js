@@ -20,6 +20,15 @@
     });
   }
 
+  // hero video: autoplay unless the visitor asked for less motion; always pausable
+  var v = document.getElementById('heroVid'), vb = document.getElementById('vidBtn');
+  if (v && vb) {
+    var setBtn = function () { var p = v.paused; vb.textContent = vb.getAttribute(p ? 'data-play' : 'data-pause'); vb.setAttribute('aria-pressed', p ? 'true' : 'false'); };
+    if (reduce) { v.removeAttribute('autoplay'); v.pause(); } else { var pr = v.play(); if (pr && pr.catch) pr.catch(function () {}); }
+    v.addEventListener('play', setBtn); v.addEventListener('pause', setBtn); setBtn();
+    vb.addEventListener('click', function () { if (v.paused) v.play(); else v.pause(); });
+  }
+
   // the real prompt
   var card = document.getElementById('askCard');
   if (card) {

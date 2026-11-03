@@ -1,0 +1,69 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="/css/mock.css">
+<style>
+@font-face{font-family:"Switzer";src:url("/fonts/switzer-400.woff2") format("woff2");font-weight:400}
+@font-face{font-family:"Switzer";src:url("/fonts/switzer-500.woff2") format("woff2");font-weight:500}
+html,body{margin:0;background:#97aaf6;font-family:"Switzer",system-ui,sans-serif;height:100%}
+.mock{aspect-ratio:auto;height:100vh;border-radius:0;position:relative}
+.mock .win{font-size:15.5px}
+.hid{opacity:0;transform:translateY(10px)}
+.show{opacity:1;transform:none;transition:opacity .45s cubic-bezier(.2,.7,.2,1),transform .45s cubic-bezier(.2,.7,.2,1)}
+.mock .th{justify-content:flex-start}
+.mock .as{gap:.7em}
+.pane{flex:0 0 0;width:0;overflow:hidden;background:#f6f6f5;transition:flex-basis .9s cubic-bezier(.2,.7,.2,1);display:flex}
+.pane.open{flex-basis:50%}
+.pane .ap{min-width:0;width:100%;flex:none}
+.pane .pv{flex:1;display:flex;align-items:center;justify-content:center;padding:1.6em;min-width:0}
+.pane .pg{display:grid;grid-template-columns:repeat(3,1fr);gap:.8em;width:100%}
+.v-in{opacity:0;transform:translateY(16px);transition:opacity .5s cubic-bezier(.2,.7,.2,1),transform .5s cubic-bezier(.2,.7,.2,1)}
+.v-in.on{opacity:1;transform:none}
+.caret{display:inline-block;width:2px;height:1.1em;background:#2a2a28;vertical-align:-.2em;margin-left:1px;animation:b 1s steps(2) infinite}
+@keyframes b{50%{opacity:0}}
+.cursor{position:absolute;left:0;top:0;width:22px;height:30px;z-index:9;pointer-events:none;transition:transform .8s cubic-bezier(.4,.1,.2,1);transform:translate(40%,90%)}
+.cursor::before{content:"";position:absolute;inset:0;background:#111;clip-path:polygon(0 0,0 85%,24% 66%,40% 100%,56% 92%,40% 60%,72% 60%);}
+.cursor::after{content:"";position:absolute;inset:1.5px;background:#fff;clip-path:polygon(0 0,0 85%,24% 66%,40% 100%,56% 92%,40% 60%,72% 60%);z-index:-1;transform:scale(1.18);transform-origin:0 0}
+.bt.press{transform:scale(.94);transition:transform .12s}
+.mock .th .us{white-space:pre-wrap}
+</style></head><body>
+<div class="mock" id="m"><div class="win">
+<div class="tb"><i class="lg"></i><b>Masa</b><span id="ttl">Atlas</span></div>
+<div class="bd">
+<aside class="sb">
+<div class="nw"><span>+</span>New chat<kbd>Ctrl N</kbd></div>
+<ul class="nv"><li><i class="gl c"></i>Search<kbd>Ctrl K</kbd></li><li><i class="gl"></i>Projects</li><li><i class="gl"></i>Artifacts</li></ul>
+<p class="sh">Projects</p>
+<p class="pj">▾ Atlas</p>
+<ul class="ch"><li class="">Dashboard design</li><li class="">Panel colours</li></ul>
+</aside>
+<div class="mn" id="main"><div class="mh"><b id="ct">New chat</b><span class="chip">Project: Atlas</span></div>
+<div class="th" id="th"></div>
+<div class="cp"><p id="inp"><span style="color:#8a8a85">New chat in Atlas...</span></p><div class="cr"><span class="pill">+</span><span class="pill">Thinking</span><span class="pill">Web</span><span class="md">Default model</span></div></div></div>
+<div class="pane" id="pane"><div class="ap"><div class="ah"><b>Pricing table</b><span class="vs"><span class="">v1</span><span class="">v2</span><span class="on">v3</span></span><span class="bt s" id="cpy">Copy</span><span class="bt s">Save</span></div><div class="pv"><div class="pg" id="pg"><div class="pl v-in"><b>Starter</b><strong>$0<small>/ mo</small></strong><span>1 project</span><span>Basic tools</span></div><div class="pl mid v-in"><b>Team</b><strong>$19<small>/ mo</small></strong><span>Unlimited projects</span><span>Shared folder</span></div><div class="pl v-in"><b>Business</b><strong>$49<small>/ mo</small></strong><span>Everything included</span><span>Priority support</span></div></div></div></div></div>
+</div><i class="cursor" id="cur"></i></div></div>
+<script>
+const Q='Can you make a 3-column pricing table for the panel?', A1='Done. Three plans with monthly and yearly prices; the middle one stands out.', A2='I kept the colours plain, following the project instructions.', CARD='Pricing table', META='HTML · version 3', TITLE='Dashboard design', COPIED='Copied';
+const $=id=>document.getElementById(id), sleep=ms=>new Promise(r=>setTimeout(r,ms));
+function moveTo(el,dx=.5,dy=.5){const r=el.getBoundingClientRect(),b=$('m').getBoundingClientRect();$('cur').style.transform=`translate(${r.left-b.left+r.width*dx}px,${r.top-b.top+r.height*dy}px)`}
+async function type(el,txt,cps){for(let i=1;i<=txt.length;i++){el.innerHTML=txt.slice(0,i).replace(/</g,'&lt;')+'<span class="caret"></span>';await sleep(1000/cps+(Math.random()*18))}}
+async function stream(p,txt){const w=txt.split(' ');let s='';for(const x of w){s+=(s?' ':'')+x;p.textContent=s;await sleep(55)}}
+(async()=>{
+ window.__go=false;
+ await sleep(500); moveTo($('inp'),.3,.5); await sleep(900);
+ const inp=$('inp'); await type(inp,Q,24); await sleep(500);
+ inp.innerHTML='<span style="color:#8a8a85">New chat in Atlas...</span>';
+ const th=$('th');
+ const us=document.createElement('p'); us.className='us hid'; us.textContent=Q; th.appendChild(us); $('ct').textContent=TITLE; $('ttl').textContent=TITLE;
+ requestAnimationFrame(()=>us.classList.add('show')); await sleep(700);
+ const as=document.createElement('div'); as.className='as'; th.appendChild(as);
+ const p1=document.createElement('p'),p2=document.createElement('p'); as.append(p1,p2);
+ await stream(p1,A1); await sleep(250); await stream(p2,A2); await sleep(350);
+ const ac=document.createElement('div'); ac.className='ac hid'; ac.innerHTML='<i class="gl"></i><span><b>'+CARD+'</b><small>'+META+'</small></span>'; as.appendChild(ac);
+ requestAnimationFrame(()=>ac.classList.add('show')); await sleep(900);
+ moveTo(ac,.5,.5); await sleep(900); ac.style.background='#fff'; await sleep(250);
+ $('pane').classList.add('open'); await sleep(1000);
+ [...document.querySelectorAll('#pg .pl')].forEach((c,i)=>setTimeout(()=>c.classList.add('on'),i*160));
+ await sleep(1700);
+ const cp=$('cpy'); moveTo(cp,.5,.5); await sleep(1000); cp.classList.add('press'); await sleep(150); cp.classList.remove('press'); cp.textContent=COPIED; await sleep(2300);
+ window.__done=true;
+})();
+</script></body></html>
