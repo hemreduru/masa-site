@@ -208,7 +208,7 @@ def head(c, title, desc, path, alt_path, extra_ld=None, og=True):
 <title>{e(title)}</title>
 <meta name="description" content="{e(desc)}">
 {ROBOTS_META}
-<meta name="theme-color" content="#1c1c1c">
+<meta name="theme-color" content="#97aaf6">
 <link rel="canonical" href="{canon}">
 <link rel="alternate" hreflang="tr" href="{tr_url}">
 <link rel="alternate" hreflang="en" href="{en_url}">
@@ -230,8 +230,9 @@ def head(c, title, desc, path, alt_path, extra_ld=None, og=True):
 <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-32.png">
 <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
 <link rel="manifest" href="/site.webmanifest">
-<link rel="preload" href="/fonts/switzer-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/switzer-600.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/css/site.css?v={VERSION}">
+<link rel="stylesheet" href="/css/mock.css?v={VERSION}">
 <script type="application/ld+json">{ld}</script>
 </head>
 """
@@ -242,23 +243,31 @@ def mockup(lang, key, alt):
         return mock.update(lang, alt, VERSION)
     if key == "hero":
         return mock.project(lang, alt)
-    return mock.BUILDERS["chat" if key == "chat" else key](lang, alt)
+    return mock.BUILDERS[key](lang, alt)
 
 
-def nav(c, home_path):
-    links = "".join(f'<a href="{home_path}{h}">{e(t)}</a>' for h, t in c["nav"][:2])
-    dl = ''
-    return f"""<header class="nav" id="top">
-<nav aria-label="{e(c['menu'])}">{links}{dl}<a class="nav-lang" href="{c['alt_path']}" hreflang="{'en' if c['lang']=='tr' else 'tr'}" lang="{'en' if c['lang']=='tr' else 'tr'}">{e(c['alt_label'])}</a></nav>
+H1 = {"tr": "Masa her modelle konuşur.", "en": "Masa talks to any model."}
+# chapter colour and layout per feature, in page order (never two alike side by side)
+CHAPTERS = [("models", "c2", "fa"), ("hero", "c3", "fb"), ("artifact", "c4", "fa"), ("mcp", "c1", "fb"), ("update", "c2", "fa")]
+
+
+def nav(c, links=None):
+    home = c["self_path"]
+    if links is None:
+        links = "".join(f'<a href="{home}{h}">{e(t)}</a>' for h, t in c["nav"][:2])
+    other = "en" if c["lang"] == "tr" else "tr"
+    return f"""<header class="nav">
+<a class="brand" href="{home}"><img src="/img/icon-192.png" width="26" height="26" alt="">Masa</a>
+<nav aria-label="{e(c['menu'])}">{links}<a href="{c['alt_path'] if links.count('<a') < 2 else c['alt_path']}" hreflang="{other}" lang="{other}">{e(c['alt_label'])}</a></nav>
 </header>"""
 
 
-def footer(c):
-    links = "".join(f'<a href="{h}">{e(t)}</a>' for h, t in c["foot_links"])
-    return f"""<footer class="foot">
+def footer(c, cls=""):
+    links = "".join(f'<a href="{h}"{" class=mail" if h.startswith("mailto") else ""}>{e(t)}</a>' for h, t in c["foot_links"])
+    return f"""<footer class="foot{cls}">
 <p>{e(c['foot_what'])}</p>
 <p class="foot-links">{links}</p>
-<p class="foot-right">{datetime.date.today().year} · <a href="{c['priv_path']}">{e(c['foot_right'])}</a></p>
+<p>{datetime.date.today().year}</p>
 </footer>"""
 
 
@@ -275,30 +284,32 @@ def home(c):
     crumb = {"@type": "BreadcrumbList", "itemListElement": [
         {"@type": "ListItem", "position": 1, "name": "Masa", "item": BASE + home_path}]}
     out = head(c, c["title"], c["desc"], home_path, c["alt_path"], [app_ld, faq_ld, crumb])
+    feats = {f[0]: f for f in c["feats"]}
+    fid = "neler" if lang == "tr" else "features"
+    faqid = "sss" if lang == "tr" else "faq"
+    dlid = "indir" if lang == "tr" else "download"
 
-    feat_blocks = ""
-    feat_imgs = ""
-    for i, (k, h, p, alt) in enumerate(c["feats"]):
-        feat_blocks += f"""<article class="fblock" data-img="{k}">
-<h3>{e(h)}</h3>
-<p>{e(p)}</p>
-</article>
+    chapters = ""
+    for i, (k, col, lay) in enumerate(CHAPTERS):
+        _, h, p, alt = feats[k]
+        anchor = f' id="{fid}"' if i == 0 else ""
+        chapters += f"""<section class="ch {col} feat {lay}"{anchor} aria-labelledby="f-{k}">
+<h2 class="hd" id="f-{k}">{e(h)}</h2>
+<div class="fp"><p>{e(p)}</p></div>
+<div class="fm">{mockup(lang, k, alt)}</div>
+</section>
 """
-        feat_imgs += f'<div class="fimg{" is-on" if i == 0 else ""}" data-k="{k}">{mockup(lang, k, alt)}</div>\n'
 
     how = ""
     for i, (lead, sub, kind, text, resp) in enumerate(c["how"]):
         if kind == "code":
-            call = f"""<div class="call" data-ui><pre><code id="cmd">{e(text)}</code></pre><button type="button" class="copy" data-copy="#cmd" data-done="{e(c['how_copied'])}">{e(c['how_copy'])}</button></div>"""
-            respb = ""
+            call = f"""<div class="call"><div class="in"><pre><code id="cmd">{e(text)}</code></pre><button type="button" class="copy" data-copy="#cmd" data-done="{e(c['how_copied'])}">{e(c['how_copy'])}</button></div></div>"""
         else:
-            call = f"""<div class="call field" data-ui><span>{e(text)}</span></div>"""
-            respb = f"""<div class="resp{' resp-wide' if i == 2 else ''}" data-ui>{mockup(lang, resp, c['feats'][[f[0] for f in c['feats']].index(resp)][3])}</div>"""
-        how += f"""<li class="ex">
+            call = f"""<div class="call"><div class="in"><span>{e(text)}</span></div></div>"""
+        how += f"""<li class="ex"><p class="ex-num" aria-hidden="true">{i+1}</p>
 <p class="ex-lead">{e(lead)}</p>
 <p class="ex-sub">{e(sub)}</p>
 {call}
-{respb}
 </li>
 """
 
@@ -310,33 +321,24 @@ def home(c):
     b1, b2, b3 = c["ask_btns"]
     out += f"""<body>
 <a class="skip" href="#main">{e(c['skip'])}</a>
-{nav(c, home_path)}
+{nav(c)}
 <main id="main">
-<section class="hero">
+<section class="ch c1 hero">
+<h1>{e(H1[lang])}</h1>
+<div class="hero-text"><p>{e(c['tagline'])}</p><a class="btn" href="#{dlid}">{e(c['cta'])}</a></div>
 <div class="hero-shot">{mock.chat(lang, c['hero_alt'])}</div>
-<div class="hero-band">
-<div class="hero-strip"><p>{e(c['tagline'])}</p><a class="btn" href="#{'indir' if lang=='tr' else 'download'}">{e(c['cta'])}</a></div>
-<h1 class="wordmark" id="wordmark">Masa</h1>
-</div>
 </section>
 
-<section class="features" id="{'neler' if lang=='tr' else 'features'}" aria-labelledby="feat-h">
-<div class="f-left"><div class="f-stage">
-{feat_imgs}</div></div>
-<div class="f-right">
-<h2 id="feat-h" class="soft">{e(c['feat_h'])}</h2>
-{feat_blocks}</div>
-</section>
-
-<section class="ask" aria-labelledby="ask-h">
+{chapters}
+<section class="ch ink ask" aria-labelledby="ask-h">
 <div class="ask-text">
 <h2 id="ask-h">{e(c['ask_h'])}</h2>
 <p>{e(c['ask_p'])}</p>
 </div>
 <div class="ask-card-wrap">
-<div class="ask-card" data-ui id="askCard" data-ok="{e(c['ask_ok'])}" data-always="{e(c['ask_always'])}" data-no="{e(c['ask_no'])}" data-wait="{e(c['ask_wait'])}">
-<p class="ask-t">{e(c['ask_title'])}</p>
+<div class="ask-card" id="askCard" data-ok="{e(c['ask_ok'])}" data-always="{e(c['ask_always'])}" data-no="{e(c['ask_no'])}" data-wait="{e(c['ask_wait'])}">
 <p class="ask-w">{e(c['ask_what'])}</p>
+<p class="ask-t">{e(c['ask_title'])}</p>
 <div class="ask-b">
 <button type="button" data-a="ok">{e(b1)}</button>
 <button type="button" data-a="always">{e(b2)}</button>
@@ -348,29 +350,29 @@ def home(c):
 </div>
 </section>
 
-<section class="how" aria-labelledby="how-h">
-<div class="how-col">
-<h2 id="how-h">{e(c['how_h'])}</h2>
+<section class="ch c3 how" aria-labelledby="how-h">
+<h2 class="hd" id="how-h">{e(c['how_h'])}</h2>
 <ol class="exs">
 {how}</ol>
-</div>
 </section>
 
-<section class="faq" id="{'sss' if lang=='tr' else 'faq'}" aria-labelledby="faq-h">
-<div class="qa head"><h2 id="faq-h" class="soft">{e(c['faq_h'])}</h2></div>
+<section class="ch paper faq" id="{faqid}" aria-labelledby="faq-h">
+<div class="qa"><h2 id="faq-h">{e(c['faq_h'])}</h2></div>
 {faq}</section>
 
-<section class="cta" id="{'indir' if lang=='tr' else 'download'}" aria-labelledby="cta-h">
-<h2 id="cta-h" class="cta-q"><span>{e(c['cta_q1'])}</span><span>{e(c['cta_q2'])}</span></h2>
+<section class="ch ink cta" id="{dlid}" aria-labelledby="cta-h">
+<h2 class="cta-q" id="cta-h"><span>{e(c['cta_q1'])}</span><span>{e(c['cta_q2'])}</span></h2>
+<div>
 <div class="cta-row">
 <a class="btn" href="/download/Masa-Setup.exe" download>{e(c['cta_win'])}</a>
 <span class="or">{e(c['cta_or'])}</span>
 <a class="btn" href="/download/masa_amd64.deb" download>{e(c['cta_lin'])}</a>
 </div>
 <p class="cta-note">{e(c['cta_note'])}</p>
+</div>
+{footer(c)}
 </section>
 </main>
-{footer(c)}
 <script src="/js/site.js?v={VERSION}" defer></script>
 </body>
 </html>
@@ -385,9 +387,10 @@ def privacy(c):
         {"@type": "ListItem", "position": 1, "name": "Masa", "item": BASE + c["self_path"]},
         {"@type": "ListItem", "position": 2, "name": c["priv_h"], "item": BASE + path}]}
     out = head(c, c["priv_title"], c["priv_desc"], path, c["alt_priv_path"], [crumb])
+    other = "en" if c["lang"] == "tr" else "tr"
     out += f"""<body class="plain">
 <a class="skip" href="#main">{e(c['skip'])}</a>
-<header class="nav"><nav><a href="{c['self_path']}">{e(c['priv_home'])}</a><a class="nav-lang" href="{c['alt_priv_path']}" hreflang="{'en' if c['lang']=='tr' else 'tr'}" lang="{'en' if c['lang']=='tr' else 'tr'}">{e(c['alt_label'])}</a></nav></header>
+<header class="nav"><a class="brand" href="{c['self_path']}"><img src="/img/icon-192.png" width="26" height="26" alt="">Masa</a><nav><a href="{c['alt_priv_path']}" hreflang="{other}" lang="{other}">{e(c['alt_label'])}</a></nav></header>
 <main id="main" class="priv">
 <h1>{e(c['priv_h'])}</h1>
 {blocks}
@@ -465,7 +468,7 @@ def main():
     write("llms.txt", llms)
     write("site.webmanifest", json.dumps({
         "name": "Masa", "short_name": "Masa", "start_url": "/", "display": "browser",
-        "background_color": "#1c1c1c", "theme_color": "#1c1c1c",
+        "background_color": "#f7f7f5", "theme_color": "#97aaf6",
         "icons": [{"src": "/img/icon-192.png", "sizes": "192x192", "type": "image/png"},
                   {"src": "/img/icon-512.png", "sizes": "512x512", "type": "image/png"}]}, indent=2))
     write("404.html", f"""<!DOCTYPE html><html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>404 | Masa</title><meta name="robots" content="noindex"><link rel="stylesheet" href="/css/site.css?v={VERSION}"></head><body class="plain"><main id="main" class="priv"><h1>404</h1><p><a href="/">Masa</a></p></main></body></html>""")

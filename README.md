@@ -10,5 +10,5 @@ MASA_VERSION=0.1.9 python3 build.py
 
 - `mock.py` draws the app window in HTML and CSS (no screenshots).
 - `css/site.css`, `js/site.js`: styles and the small interactions.
-- Font: Switzer (Fontshare, free licence). Download `Switzer-Regular` and `Switzer-Medium` as woff2 from fontshare.com and place them as `fonts/switzer-400.woff2` and `fonts/switzer-500.woff2`. The files are not stored in this repo.
+- Font: Switzer (Fontshare, free licence). Download Switzer Regular, Medium and Semibold as woff2 from fontshare.com and place them as `fonts/switzer-400.woff2`, `fonts/switzer-500.woff2` and `fonts/switzer-600.woff2`. The files are not stored in this repo.
 - Downloads are served from `/download/` on the host (symlinks to the release files).

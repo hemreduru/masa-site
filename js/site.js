@@ -2,36 +2,22 @@
   'use strict';
   var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  // entrance: heading, then text, then picture, staggered
+  // entrance: heading first, then text, then picture
   if (!reduce && 'IntersectionObserver' in window) {
-    var sel = '.fblock h3,.fblock p,.ask-text h2,.ask-text p,.ask-card,.how-col h2,.ex-lead,.ex-sub,.call,.resp,.qa h2,.qa h3,.qa p,.cta-row,.cta-note';
+    var sel = '.feat .hd,.fp p,.fm,.ask-text h2,.ask-text p,.ask-card,.how .hd,.ex,.qa > *,.cta-row,.cta-note';
     var els = document.querySelectorAll(sel);
     var io = new IntersectionObserver(function (entries) {
       entries.forEach(function (en) {
         if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); }
       });
-    }, { threshold: 0.12, rootMargin: '0px 0px -6% 0px' });
+    }, { threshold: 0.1, rootMargin: '0px 0px -5% 0px' });
     els.forEach(function (el) {
-      var p = el.parentElement, i = 0, n = el;
+      var i = 0, n = el;
       while ((n = n.previousElementSibling)) i++;
       el.style.setProperty('--d', Math.min(i, 4));
       el.classList.add('pre');
       io.observe(el);
     });
-  }
-
-  // features: the pinned screen follows the block being read
-  var blocks = document.querySelectorAll('.fblock');
-  var imgs = document.querySelectorAll('.fimg');
-  if (blocks.length && 'IntersectionObserver' in window) {
-    var fo = new IntersectionObserver(function (entries) {
-      entries.forEach(function (en) {
-        if (!en.isIntersecting) return;
-        var k = en.target.getAttribute('data-img');
-        imgs.forEach(function (im) { im.classList.toggle('is-on', im.getAttribute('data-k') === k); });
-      });
-    }, { rootMargin: '-45% 0px -45% 0px' });
-    blocks.forEach(function (b) { fo.observe(b); });
   }
 
   // the real prompt
@@ -66,17 +52,4 @@
       if (navigator.clipboard) navigator.clipboard.writeText(t.textContent).then(done, done); else done();
     });
   });
-
-  // signature move: the wordmark settles as the first screen leaves
-  var wm = document.getElementById('wordmark');
-  if (wm && !reduce) {
-    var ticking = false;
-    var update = function () {
-      var y = Math.min(window.scrollY / (window.innerHeight * 0.9), 1);
-      wm.style.transform = 'scale(' + (1 - y * 0.06).toFixed(4) + ')';
-      ticking = false;
-    };
-    window.addEventListener('scroll', function () { if (!ticking) { ticking = true; requestAnimationFrame(update); } }, { passive: true });
-    update();
-  }
 })();

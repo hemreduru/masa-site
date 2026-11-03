@@ -79,7 +79,7 @@ def _composer(m):
 
 
 def _wrap(alt, cls, title, body):
-    return f'<div class="mock {cls}" role="img" aria-label="{e(alt)}"><div class="win" aria-hidden="true">{_titlebar(None, title)}<div class="bd">{body}</div></div></div>'
+    return f'<div class="mock {cls}" data-ui role="img" aria-label="{e(alt)}"><div class="win" aria-hidden="true">{_titlebar(None, title)}<div class="bd">{body}</div></div></div>'
 
 
 def chat(lang, alt, cls=""):
