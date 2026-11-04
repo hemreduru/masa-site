@@ -8,7 +8,7 @@ OUT = os.path.join(ROOT, "public")
 BASE = "https://masa.hursit.me"
 INDEXABLE = os.environ.get("INDEXABLE", "0") == "1"
 TODAY = datetime.date.today().isoformat()
-VERSION = os.environ.get("MASA_VERSION", "0.1.14")
+VERSION = os.environ.get("MASA_VERSION", "0.1.16")
 EMAIL = "contact@hursit.me"
 
 e = html.escape
